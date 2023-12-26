@@ -1,0 +1,16 @@
+<template>
+    <lightning-card>
+        <h3 slot="title">
+            <lightning-icon icon-name="utility:connected_apps" size="small"></lightning-icon>
+            <p>Display value from child to parent {Addition}</p>
+        </h3>
+        <div slot="footer">
+            <!--lightning-badge label={result}></lightning-badge-->
+            <c-child-cmp2 resultvarfromchild={result} onaddition={handleaddition}></c-child-cmp2>
+        </div>
+        <p class="slds-p-horizontal_small">
+            <lightning-input value={firstNumber} name="First Number" label="First Number" onchange={handleChanges}></lightning-input>
+            <lightning-input value={SecondNumber} name="Second Number" label="Second Number" onchange={handleChanges}></lightning-input>
+        </p>
+    </lightning-card>
+</template>

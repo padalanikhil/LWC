@@ -1,0 +1,8 @@
+<template>
+    <lightning-card>
+    <p class="slds-p-horizontal_small">Parent to child result from child component : {resultvarfromchild}<br/>
+        <lightning-button label="Type to send value" variant="brand" onclick={sendMessageToParent}></lightning-button>
+    </p>
+    <lightning-input label="Type" onchange={handleChanges}></lightning-input>
+</lightning-card>
+</template>
