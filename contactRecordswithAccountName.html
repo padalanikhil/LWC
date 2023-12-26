@@ -1,0 +1,86 @@
+<template>
+    <lightning-card title="Custom Data table in Lightning Web Components">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered" if:true={ContactList}>
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="First Name">Account Name</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="First Name">First Name</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Last Name">Last Name</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Email">Email</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Email">Phone</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="Email">Action</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={contactRecordstoShow} for:item="con">
+                    <tr key={con.Id}>
+                        <th scope="col">
+                            <div>{con.Account.Name}</div>
+                        </th>
+                        <th scope="col">
+                            <div>{con.FirstName}</div>
+                        </th>
+                        <th scope="col">
+                            <div>{con.LastName}</div>
+                        </th>
+                        <th scope="col">
+                            <div>{con.Email}</div>
+                        </th>
+                        <th scope="col">
+                            <div>{con.Phone}</div>
+                        </th>
+                        <th>
+                            <lightning-button-icon
+                            icon-name="utility:edit"
+                            alternative-text="Edit"
+                            variant="bare"
+                            onclick={handleEditClick}
+                            data-id ={con.Id}>
+                        </lightning-button-icon>
+                    </th>
+                </tr>
+            </template>
+                        <template if:true={isShow}>
+                            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                <div class="slds-modal__container">
+                                  <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <c-contact-details-edit-cmp  onhandle={closepopup} contactrecordids={contactrecord}></c-contact-details-edit-cmp>
+                    </div>
+                </div>
+                </section>
+                    </template>
+            </tbody>
+        </table> <br>
+       <!-- <div slot="footer" class="slds-var-m-vertical_medium">
+            <lightning-button label="Previous" name="Previous" variant="brand" style="padding-right:20px;" onclick={previouspage}></lightning-button>
+            <lightning-button label="Next" name="Next" variant="brand" onclick={nextpage}></lightning-button><br>
+            <div>Displaying 5 records out of: {totalRecords}</div>
+        </div>    -->
+        <div class="slds-align_absolute-center">
+            <lightning-button label="Previous" icon-name="utility:chevronleft" onclick={previousHandler}
+                disabled={isPreviousDisable}>
+            </lightning-button>
+            <span class="slds-badge slds-badge_lightest"
+                        style="margin-right: 10px;margin-left: 10px;">
+                       Displaying {startingRecord} to {endingRecord} of {totalRecordCount} records.
+                     Page {page} of {totalPage}.
+            </span>
+            <lightning-button label="Next" icon-name="utility:chevronright" icon-position="right" onclick={nextHandler}
+                disabled={isNextDisable}>
+            </lightning-button>
+        </div>
+</lightning-card>
+
+</template>
