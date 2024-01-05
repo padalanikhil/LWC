@@ -1,0 +1,111 @@
+trigger AccountTrigger on Account (before insert,after insert,before update,after update,before delete,after delete,after undelete) {
+   //////////////////////////////////////////////////////////////////////////////////////////////////////     
+    
+    if(Trigger.isBefore && Trigger.isInsert){
+    for(Account acc: Trigger.new){
+        if(acc.AnnualRevenue<1000){
+            acc.addError('Annual revenue must be greater than 1000');
+        }
+         acc.ShippingStreet = acc.BillingStreet;
+        acc.ShippingCity = acc.BillingCity;
+        
+    }
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////    
+    
+    if(Trigger.isAfter && Trigger.isInsert){
+        list<Contact> conList=new list<Contact>();
+        for(Account a: Trigger.new){
+            Contact con=new Contact();
+            con.LastName=a.Name;
+            con.AccountId=a.Id;
+            con.Email='test@test.com';
+            conList.add(con);
+            
+        }
+        if(conList.size()>0)
+       insert conList;
+    }
+    
+//////////////////////////////////////////////////////////////////////////////////////////////////////    
+    
+    if(Trigger.isBefore && Trigger.isUpdate){
+        for(Account a: Trigger.new){
+            Account oldRec=Trigger.oldMap.get(a.Id);
+            if(a.Name!= oldRec.Name){
+                a.addError('Account name cant be modified');
+            }
+        }
+}
+    
+ //////////////////////////////////////////////////////////////////////////////////////////////////////    
+    
+    if(Trigger.isAfter && Trigger.isUpdate){
+        set<id> accIdschangedBilling=new set<id>();
+        list<contact> cn=new list<contact>();
+        for(Account accs: Trigger.new){
+            Account oldRec=Trigger.oldMap.get(accs.Id);
+            if(accs.BillingCity!= oldRec.BillingCity){
+                accIdschangedBilling.add(accs.Id);
+            }
+        }
+        list<Account> accList=[select id,BillingCity,BillingCountry,BillingState,BillingStreet,BillingPostalCode,
+                               (select id,MailingCity,MailingCountry,MailingState,MailingStreet,MailingPostalCode 
+                                from contacts) from Account where id in: accIdschangedBilling];
+        for(Account accs: accList){
+            list<Contact> cns=accs.contacts;
+            for(Contact c : cns){
+             //c.AccountId=accs.Id;
+                c.MailingCity=accs.BillingCity;
+                c.MailingCountry=accs.BillingCountry;
+                c.MailingState=accs.BillingState;
+                c.MailingStreet=accs.BillingStreet;
+                c.MailingPostalCode=accs.BillingPostalCode;
+                cn.add(c);
+            }
+        }
+      
+        update cn;
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////    
+    
+    if(Trigger.isBefore && Trigger.isdelete){
+        for(Account acc: Trigger.old){
+            if(acc.Active__c=='Yes'){
+                acc.addError('Cant delete an active account');
+                    }
+        }
+     }
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////    
+    
+    if(Trigger.isAfter && Trigger.isdelete){
+         list<Messaging.SingleEmailMessage> emailObjs=new list<Messaging.SingleEmailMessage>(); 
+        for(Account acc: Trigger.old){
+            Messaging.SingleEmailMessage emailObj=new Messaging.SingleEmailMessage();
+            list<String> emailList=new list<String>();
+            emailList.add(UserInfo.getUserEmail());
+            emailObj.setToAddresses(emailList);
+            emailObj.setSubject('Email from Salesforce: Account has been successfully deleted :'+acc.Name);
+            emailObj.setPlainTextBody('Hello no body, please refer subject');
+            emailObjs.add(emailObj);
+        }
+        Messaging.sendEmail(emailObjs);
+    }
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////    
+    
+    if(Trigger.isAfter && Trigger.isUndelete){
+        list<Messaging.SingleEmailMessage> emailObjs=new list<Messaging.SingleEmailMessage>(); 
+        for(Account acc: Trigger.New){
+            Messaging.SingleEmailMessage emailObj=new Messaging.SingleEmailMessage();
+            list<String> emailList=new list<String>();
+            emailList.add(UserInfo.getUserEmail());
+            emailObj.setToAddresses(emailList);
+            emailObj.setSubject('Email from Salesforce: Account has been successfully Restored :'+acc.Name);
+            emailObj.setPlainTextBody('Hello no body, please refer subject');
+            emailObjs.add(emailObj);
+        }
+        Messaging.sendEmail(emailObjs);
+    }
+}
